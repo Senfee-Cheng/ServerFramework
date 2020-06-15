@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\Users\公子扶苏\.Rider2019.2\system\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\公子扶苏\.Rider2019.2\system\resharper-host\local\Transient\ReSharperHost\v192\SolutionCaches\_Server.500802395.00" t="ExcludeRecursive" />
+    <e p="D:\Workspace\Unity3D\ServerFramework\Server\Server" t="IncludeFlat">
+      <e p="packages" t="ExcludeRecursive" />
+      <e p="Server.sln" t="IncludeFlat" />
+      <e p="ServerBase" t="IncludeRecursive">
+        <e p="AES.cs" t="Include" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="obj" t="ExcludeRecursive" />
+        <e p="Properties" t="Include">
+          <e p="AssemblyInfo.cs" t="Include" />
+        </e>
+        <e p="ServerBase.csproj" t="IncludeRecursive" />
+        <e p="Singleton.cs" t="Include" />
+      </e>
+      <e p="SimpleServer" t="IncludeRecursive">
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="Business" t="Include" />
+        <e p="Net" t="Include">
+          <e p="ServerSocket.cs" t="Include" />
+        </e>
+        <e p="obj" t="ExcludeRecursive" />
+        <e p="Properties" t="Include">
+          <e p="AssemblyInfo.cs" t="Include" />
+        </e>
+        <e p="Protobuf" t="Include" />
+        <e p="ServerSocket.cs" t="Include" />
+        <e p="SimpleServer.csproj" t="IncludeRecursive" />
+      </e>
+    </e>
+  </component>
+</project>
