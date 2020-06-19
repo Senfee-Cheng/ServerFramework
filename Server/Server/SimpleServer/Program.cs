@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SimpleServer
+namespace SimpleServer.Net
 {
     public class Program
     {
