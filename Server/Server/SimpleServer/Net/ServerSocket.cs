@@ -18,6 +18,7 @@ namespace SimpleServer.Net
 #else
     private string m_IPStr = "172.45.756.54";
 #endif
+        public static long m_PingInterval = 30;//心跳包间隔时间
         //端口号
         private const int m_Port = 8090;
 
@@ -29,6 +30,8 @@ namespace SimpleServer.Net
 
         //储存所有客户端
         public static Dictionary<Socket, ClientSocket> m_ClientDic = new Dictionary<Socket, ClientSocket>();
+
+        public List<ClientSocket> m_TempList = new List<ClientSocket>();
 
         public void Init()
         {
@@ -57,7 +60,7 @@ namespace SimpleServer.Net
                     Debug.LogError(e);
                 }
 
-                for (int i = m_CheckReadList.Count-1; i >=0 ; i--)
+                for (int i = m_CheckReadList.Count - 1; i >= 0; i--)
                 {
                     Socket s = m_CheckReadList[i];
                     if (s == m_ListenSocket)
@@ -71,9 +74,30 @@ namespace SimpleServer.Net
                         ReadClient(s);
                     }
                 }
+
+
+                //检测是否心跳包超时的计算
+
+                long timeNow = GetTimeStamp();
+                m_TempList.Clear();
+                foreach (ClientSocket clientSocket in m_ClientDic.Values)
+                {
+                    //当前时间-上次心跳包间隔时间 > 2分钟，断开
+                    if (timeNow - clientSocket.LastPingTime > m_PingInterval * 4)
+                    {
+                        Debug.Log("ping close" + clientSocket.Socket.RemoteEndPoint.ToString());
+                        m_TempList.Add(clientSocket);//临时保存
+                        
+                    }
+                }
+
+                foreach (ClientSocket clientSocket in m_TempList)
+                {
+                    CloseClient(clientSocket);
+                }
+                m_TempList.Clear();
             }
 
-            //检测是否心跳包超时的计算
         }
 
         public void ResetCheckRead()
@@ -116,7 +140,52 @@ namespace SimpleServer.Net
         void ReadClient(Socket client)
         {
             ClientSocket clientSocket = m_ClientDic[client];
+            ByteArray readBuff = new ByteArray();
             //接收信息，根据信息解析协议，根据协议内容处理消息再下发到客户端
+            int count = 0;
+
+            //如果上一次接收数据刚好占满了1024的数组
+            if (readBuff.Remain <=0)
+            {
+                //数据移动到index
+                OnReceiveData(clientSocket);
+                readBuff.CheckAndMoveBytes();
+                //保证到如果数据长度大于默认长度，扩充数据长度，保证信息的正常接收
+                while (readBuff.Remain <=0)
+                {
+                    int expandSize = readBuff.Length < ByteArray.DEFAULT_SIZE ? ByteArray.DEFAULT_SIZE : readBuff.Length;
+                    readBuff.ReSize(expandSize * 2);
+                }
+            }
+
+            try
+            {
+                count = client.Receive(readBuff.Bytes, readBuff.WriteIndex, readBuff.Remain, 0);
+            }
+            catch (SocketException ex)
+            {
+                Debug.LogError("Receive fail:" + ex);
+                CloseClient(clientSocket);  //如果出错，关闭客户端
+                return;
+
+            }
+            //客户端断开连接了
+            if(count <= 0) {
+                CloseClient(clientSocket);
+                return;
+            }
+            //获取下次index位置
+            readBuff.WriteIndex += count;
+            //解析信息
+            readBuff.CheckAndMoveBytes();
+        }
+
+        void OnReceiveData(ClientSocket clientSocket)
+        {
+            //如果信息长度不够，需要再次读取信息
+            //OnReceiveData(clientSocket);
+
+
         }
 
         //获取时间
